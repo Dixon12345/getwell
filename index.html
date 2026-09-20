@@ -809,6 +809,8 @@
     var finale = isNew && complete && !wasComplete;
 
     giftLayer.hidden = true;
+    endLayer.hidden = true;
+    askLayer.hidden = true;
     wishText.textContent = finale ? FINALE : WISHES[idx];
     wishNo.textContent = "NO. " + (idx + 1) + " / " + WISHES.length;
     badge.setAttribute("data-m", String(idx % 4));
