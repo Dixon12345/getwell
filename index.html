@@ -119,6 +119,31 @@
   .sound[aria-pressed="false"] .on{display:none}
   .sound[aria-pressed="false"] .off{display:block}
 
+  .restart{
+    position:fixed;top:12px;left:12px;z-index:6;
+    width:38px;height:38px;border-radius:50%;
+    display:grid;place-items:center;
+    background:var(--surface);
+    border:2.5px solid var(--outline);
+    box-shadow:3px 3px 0 var(--outline);
+    cursor:pointer;color:var(--ink);
+    transition:transform .14s ease,box-shadow .14s ease;
+  }
+  .restart:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--outline)}
+  .restart:focus-visible{outline:3px dashed var(--pink);outline-offset:3px}
+  .restart svg{width:19px;height:19px;display:block}
+
+  .end-in{display:flex;flex-direction:column;align-items:center;gap:clamp(6px,2vmin,14px);width:100%}
+  .healthy{width:min(30vmin,132px);height:auto;display:block;animation:hop 2.8s ease-in-out infinite}
+  @keyframes hop{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-8px) rotate(1deg)}}
+  .end-line{
+    margin:0;
+    font-family:"ZCOOL KuaiLe","Noto Sans SC",cursive;
+    font-size:clamp(1rem,4vmin,1.28rem);
+    line-height:1.7;color:var(--ink);text-wrap:balance;
+  }
+  .end-sub{margin:0;font-size:clamp(.78rem,2.7vmin,.9rem);color:var(--ink-2);line-height:1.6}
+
   .stage{
     position:relative;z-index:1;
     width:100%;max-width:440px;
@@ -281,7 +306,7 @@
     .tally{display:none}
   }
   @media (prefers-reduced-motion:reduce){
-    .float,.twinkle,.doze,.patient,.nope,.shiver,.slot.has{animation:none}
+    .float,.twinkle,.doze,.patient,.healthy,.nope,.shiver,.slot.has{animation:none}
     .bloom{animation-duration:.01ms}
   }
 </style>
@@ -297,6 +322,13 @@
   <span class="twinkle t4">✧</span>
 </div>
 <canvas id="fx" aria-hidden="true"></canvas>
+
+<button class="restart" id="restart" type="button" aria-label="重新开始" hidden>
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M20.5 12a8.5 8.5 0 11-2.8-6.3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M20.6 3.4V8.2h-4.8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
 
 <button class="sound" id="sound" type="button" aria-pressed="true" aria-label="音乐开关">
   <svg class="on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -424,6 +456,27 @@
         <span class="wish-no" id="wishNo"></span>
       </div>
     </div>
+
+    <div class="layer" id="endLayer" hidden>
+      <div class="end-in">
+        <svg class="healthy" viewBox="0 0 150 140" role="img" aria-label="已经退烧、举着手的小家伙">
+          <ellipse cx="75" cy="132" rx="52" ry="6" fill="var(--outline)" opacity=".13"/>
+          <path d="M34 104c-10-8-14-20-10-30" stroke="var(--outline)" stroke-width="9" stroke-linecap="round" fill="none"/>
+          <path d="M116 104c10-8 14-20 10-30" stroke="var(--outline)" stroke-width="9" stroke-linecap="round" fill="none"/>
+          <rect x="26" y="98" width="98" height="32" rx="15" fill="var(--pink)" stroke="var(--outline)" stroke-width="5"/>
+          <circle cx="75" cy="64" r="32" fill="var(--surface)" stroke="var(--outline)" stroke-width="5"/>
+          <ellipse cx="55" cy="72" rx="8.5" ry="5.5" fill="var(--blush)" opacity=".8"/>
+          <ellipse cx="95" cy="72" rx="8.5" ry="5.5" fill="var(--blush)" opacity=".8"/>
+          <path d="M58 64c3-7 11-7 14 0" stroke="var(--outline)" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+          <path d="M78 64c3-7 11-7 14 0" stroke="var(--outline)" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+          <path d="M66 76c3 7 15 7 18 0" stroke="var(--outline)" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+          <path d="M120 24l3.4 7.2 7.6 1-5.6 5.4 1.4 7.6-6.8-3.7-6.8 3.7 1.4-7.6-5.6-5.4 7.6-1z" fill="var(--butter)" stroke="var(--outline)" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M26 38l2.4 5 5.2.7-3.8 3.7 1 5.2-4.8-2.6-4.8 2.6 1-5.2-3.8-3.7 5.2-.7z" fill="var(--mint)" stroke="var(--outline)" stroke-width="2.6" stroke-linejoin="round"/>
+        </svg>
+        <p class="end-line">八个愿望，现在全在你这里了</p>
+        <p class="end-sub">剩下的交给时间，你只管好好休息</p>
+      </div>
+    </div>
   </div>
 
   <div class="control">
@@ -458,7 +511,7 @@
   var headline = $("headline"), eyebrow = $("eyebrow");
   var askLayer = $("askLayer"), giftLayer = $("giftLayer"), wishLayer = $("wishLayer");
   var patient = $("patient"), yes = $("yes"), no = $("no");
-  var gift = $("gift"), scaler = $("scaler"), scene = $("scene");
+  var gift = $("gift"), scaler = $("scaler"), scene = $("scene"), endLayer = $("endLayer"), restart = $("restart");
   var wishCard = $("wishCard"), wishText = $("wishText"), wishNo = $("wishNo"), badge = $("badge");
   var hint = $("hint"), again = $("again"), tallyEl = $("tally"), slotsEl = $("slots"), collect = $("collect");
   var soundBtn = $("sound");
@@ -487,31 +540,33 @@
   soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false");
 
   /* ================= 音乐 ================= */
-  var A = null, master = null, wet = null;
+  var A = null, master = null, musicBus = null, sfxBus = null;
   function ac(){
     if(!soundOn) return null;
     try{
       if(!A){
         A = new (window.AudioContext || window.webkitAudioContext)();
         master = A.createGain(); master.gain.value = 0.85; master.connect(A.destination);
-        var dly = A.createDelay(1.0); dly.delayTime.value = 0.27;
-        var fb = A.createGain(); fb.gain.value = 0.26;
-        wet = A.createGain(); wet.gain.value = 0.3;
-        master.connect(dly); dly.connect(fb); fb.connect(dly); dly.connect(wet); wet.connect(A.destination);
+        musicBus = A.createGain(); musicBus.gain.value = 0.5; musicBus.connect(master);
+        sfxBus = A.createGain(); sfxBus.gain.value = 0.34; sfxBus.connect(master);
+        var dly = A.createDelay(1.0); dly.delayTime.value = 0.3;
+        var fb = A.createGain(); fb.gain.value = 0.18;
+        var wet = A.createGain(); wet.gain.value = 0.16;
+        musicBus.connect(dly); dly.connect(fb); fb.connect(dly); dly.connect(wet); wet.connect(master);
       }
       if(A.state === "suspended") A.resume();
       return A;
     }catch(e){ return null; }
   }
   // 音乐盒音色：基音 sine + 泛音 triangle，快起音、长衰减
-  function box(freq, at, dur, vol){
+  function box(freq, at, dur, vol, bus){
     var a = ac(); if(!a) return;
     var t = a.currentTime + at;
     var g = a.createGain();
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(vol, t + 0.006);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    g.connect(master);
+    g.connect(bus || sfxBus);
     var o1 = a.createOscillator(); o1.type = "sine"; o1.frequency.setValueAtTime(freq, t);
     var o2 = a.createOscillator(); o2.type = "triangle"; o2.frequency.setValueAtTime(freq * 2.004, t);
     var h = a.createGain(); h.gain.value = 0.22; o2.connect(h); h.connect(g);
@@ -521,7 +576,7 @@
     o1.start(t); o2.start(t); o3.start(t);
     o1.stop(t + dur + 0.1); o2.stop(t + dur + 0.1); o3.stop(t + dur + 0.1);
   }
-  function pad(freq, at, dur, vol){
+  function pad(freq, at, dur, vol, bus){
     var a = ac(); if(!a) return;
     var t = a.currentTime + at;
     var o = a.createOscillator(); o.type = "sine"; o.frequency.setValueAtTime(freq, t);
@@ -529,7 +584,7 @@
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(vol, t + 0.25);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(master);
+    o.connect(g); g.connect(bus || sfxBus);
     o.start(t); o.stop(t + dur + 0.1);
   }
 
@@ -549,8 +604,8 @@
   function playLoop(){
     if(!musicOn || !ac()) return;
     var i;
-    for(i = 0; i < MEL.length; i++) box(MEL[i][0], MEL[i][1] * BEAT, MEL[i][2] * BEAT, 0.075);
-    for(i = 0; i < BASS.length; i++) pad(BASS[i][0], BASS[i][1] * BEAT, BASS[i][2] * BEAT, 0.035);
+    for(i = 0; i < MEL.length; i++) box(MEL[i][0], MEL[i][1] * BEAT, MEL[i][2] * BEAT, 0.075, musicBus);
+    for(i = 0; i < BASS.length; i++) pad(BASS[i][0], BASS[i][1] * BEAT, BASS[i][2] * BEAT, 0.035, musicBus);
     musicTimer = setTimeout(playLoop, 16 * BEAT * 1000 - 60);
   }
   function musicStart(){
@@ -582,6 +637,16 @@
       musicStop();
     }
   });
+  function duck(ms){
+    if(!musicBus || !A) return;
+    var t = A.currentTime;
+    try{
+      musicBus.gain.cancelScheduledValues(t);
+      musicBus.gain.setValueAtTime(musicBus.gain.value, t);
+      musicBus.gain.linearRampToValueAtTime(0.1, t + 0.05);
+      musicBus.gain.linearRampToValueAtTime(0.5, t + (ms || 1000) / 1000);
+    }catch(e){}
+  }
   function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
 
   /* ================= 撒花 ================= */
@@ -690,19 +755,24 @@
     started = true;
     musicStart();
     buzz([12, 30, 18]);
-    box(N.G5, 0, 0.5, 0.09); box(N.C6, 0.1, 0.9, 0.09); box(N.E6, 0.2, 1.1, 0.06);
+    box(N.G5, 0, 0.6, 0.06); box(N.C6, 0.1, 0.9, 0.055);
     burst(16, 0.7);
     headline.style.opacity = "0";
     setTimeout(function(){
       askLayer.hidden = true;
-      giftLayer.hidden = false;
-      headline.textContent = "那就拆一个愿望给你";
       headline.style.opacity = "1";
-      hint.innerHTML = HINT_HOLD;
       collect.style.opacity = "1";
       collect.style.pointerEvents = "auto";
-      scheduleBlink();
-      gift.focus({ preventScroll:true });
+      restart.hidden = false;
+      if(found.length === WISHES.length){
+        showEnd();
+      }else{
+        giftLayer.hidden = false;
+        headline.textContent = "那就拆一个愿望给你";
+        hint.innerHTML = HINT_HOLD;
+        scheduleBlink();
+        gift.focus({ preventScroll:true });
+      }
     }, 260);
   });
 
@@ -746,6 +816,13 @@
     wishLayer.hidden = false;
     wishCard.classList.remove("bloom"); void wishCard.offsetWidth; wishCard.classList.add("bloom");
     hint.hidden = true; again.hidden = false;
+    if(complete){
+      again.textContent = isNew ? "收好啦 ✦" : "← 回去";
+      again.dataset.mode = "end";
+    }else{
+      again.textContent = "再拆一个 ✦";
+      again.dataset.mode = "draw";
+    }
     headline.textContent = finale ? "全部集齐啦！" : "这是给你的";
     opened = true;
     paintSlots(idx);
@@ -753,7 +830,7 @@
 
   /* ================= 长按 → 变大 → 打开 ================= */
   var holding = false, raf = null, startAt = 0, opened = false, buzzed = false, step = 0;
-  var RISE = [N.C5, N.D5, N.E5, N.G5, N.A5, N.C6, N.D6, N.E6, N.G6, N.C6 * 2];
+  var RISE = [N.C5, N.E5, N.G5, N.A5, N.C6, N.E6];
 
   function setScale(s, wob){
     var sx = s * (1 + Math.sin(wob * 2.4) * 0.035);
@@ -767,7 +844,7 @@
     gift.style.setProperty("--p", p.toFixed(3));
     setScale(1 + eased * 0.55, now / 42 * (0.4 + p * 1.6));
     while(step < RISE.length && p > step / RISE.length){
-      box(RISE[step], 0, 0.5, 0.055 + step * 0.003);
+      box(RISE[step], 0, 0.34, 0.045);
       step++;
     }
     if(p > 0.55 && !buzzed){ buzzed = true; buzz(12); }
@@ -821,10 +898,10 @@
 
     burst(willComplete ? 70 : 44, willComplete ? 1.25 : 1);
     buzz(willComplete ? [22, 50, 22, 50, 60] : [18, 40, 50]);
-    var run = [N.C6, N.E6, N.G6, N.C6 * 2];
-    for(var i = 0; i < run.length; i++) box(run[i], i * 0.07, 0.9, 0.08);
-    box(N.C5, 0.02, 1.8, 0.05); box(N.E5, 0.02, 1.8, 0.04); box(N.G5, 0.02, 1.8, 0.04);
-    if(willComplete){ box(N.C6, 0.55, 2.2, 0.07); box(N.E6, 0.7, 2.2, 0.05); box(N.G6, 0.85, 2.4, 0.05); }
+    duck(1200);
+    var run = [N.G5, N.C6, N.E6];
+    for(var i = 0; i < run.length; i++) box(run[i], i * 0.09, 0.8, 0.055);
+    if(willComplete) box(N.G6, 0.42, 1.4, 0.045);
 
     setTimeout(function(){
       showWish(idx, true);
@@ -864,7 +941,42 @@
   gift.addEventListener("keyup", function(e){
     if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){ endHold(); }
   });
-  again.addEventListener("click", reset);
+  function showEnd(){
+    askLayer.hidden = true; giftLayer.hidden = true; wishLayer.hidden = true;
+    endLayer.hidden = false;
+    again.hidden = true;
+    hint.hidden = false;
+    hint.innerHTML = "想重看就点下面的<b>星星</b> ✦";
+    headline.textContent = "都给你啦";
+    opened = true;
+    paintSlots(-1);
+  }
+  again.addEventListener("click", function(){
+    if(again.dataset.mode === "end"){ box(N.E5, 0, 0.5, 0.05); showEnd(); }
+    else reset();
+  });
+  restart.addEventListener("click", function(){
+    found = []; set("wishbox8.found", found);
+    reshuffle(); paintSlots(-1);
+    noCount = 0;
+    yes.style.transform = "scale(1)";
+    no.style.transform = "scale(1)";
+    no.classList.remove("gone"); no.disabled = false;
+    endLayer.hidden = true; wishLayer.hidden = true; giftLayer.hidden = true;
+    askLayer.hidden = false;
+    again.hidden = true;
+    hint.hidden = false;
+    hint.textContent = "诚实一点哦，这个问题只有两个答案";
+    headline.textContent = "是不是浑身没力？";
+    collect.style.opacity = "0"; collect.style.pointerEvents = "none";
+    restart.hidden = true;
+    started = false; opened = false;
+    gift.classList.remove("pop", "springback", "nope");
+    gift.style.setProperty("--p", "0");
+    scaler.style.transition = "none"; scaler.style.opacity = "1"; setScale(1, 0);
+    void scaler.offsetWidth; scaler.style.transition = "";
+    box(N.A4, 0, 0.4, 0.05);
+  });
   document.addEventListener("pointerup", function(){ if(holding) endHold(); });
   document.addEventListener("visibilitychange", function(){
     if(document.hidden){ if(holding) endHold(); musicStop(); }
