@@ -1,0 +1,857 @@
+<title>康复许愿盒</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+KuaiLe&display=swap">
+<style>
+  :root{
+    --ground:#FDF0F4;
+    --ground-2:#FFE3EC;
+    --surface:#FFFFFF;
+    --outline:#4A2F3A;
+    --ink:#4A2F3A;
+    --ink-2:#8A6D78;
+    --pink:#FF7EA5;
+    --pink-2:#FFC2D6;
+    --mint:#63D2B4;
+    --butter:#FFC760;
+    --blush:#FF9DB8;
+    --lid:#8FD9E8;
+    --slot:#F2D9E2;
+    --shadow:6px 6px 0 var(--outline);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#241A24;
+      --ground-2:#332434;
+      --surface:#332434;
+      --outline:#FFE7D6;
+      --ink:#FFF1E9;
+      --ink-2:#C9AEBC;
+      --pink:#FF8FB0;
+      --pink-2:#6E3E52;
+      --mint:#5FCFB0;
+      --butter:#FFC968;
+      --blush:#C46A87;
+      --lid:#5FB6C9;
+      --slot:#413043;
+      --shadow:6px 6px 0 rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#241A24;
+    --ground-2:#332434;
+    --surface:#332434;
+    --outline:#FFE7D6;
+    --ink:#FFF1E9;
+    --ink-2:#C9AEBC;
+    --pink:#FF8FB0;
+    --pink-2:#6E3E52;
+    --mint:#5FCFB0;
+    --butter:#FFC968;
+    --blush:#C46A87;
+    --lid:#5FB6C9;
+    --slot:#413043;
+    --shadow:6px 6px 0 rgba(0,0,0,.45);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    height:100vh;
+    height:100dvh;
+    padding:16px;
+    overflow:hidden;
+    overscroll-behavior:none;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    display:grid;
+    place-items:center;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  .sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .blob{position:absolute;border-radius:50%;filter:blur(2px);opacity:.5}
+  .b1{width:46vmin;height:46vmin;background:var(--pink-2);top:-14vmin;left:-12vmin}
+  .b2{width:38vmin;height:38vmin;background:var(--mint);opacity:.2;bottom:-14vmin;right:-10vmin}
+  .b3{width:22vmin;height:22vmin;background:var(--butter);opacity:.26;bottom:16vmin;left:-8vmin}
+  .twinkle{position:absolute;color:var(--butter);font-size:clamp(11px,2.3vmin,19px);opacity:.7;animation:twinkle 3.6s ease-in-out infinite}
+  .t1{top:11%;right:13%}
+  .t2{top:25%;left:8%;animation-delay:.9s;color:var(--mint)}
+  .t3{bottom:15%;right:10%;animation-delay:1.8s;color:var(--pink)}
+  .t4{bottom:25%;left:15%;animation-delay:2.6s}
+  @keyframes twinkle{0%,100%{transform:scale(.7) rotate(0deg);opacity:.3}50%{transform:scale(1.15) rotate(20deg);opacity:.95}}
+
+  #fx{position:fixed;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
+
+  .sound{
+    position:fixed;top:12px;right:12px;z-index:6;
+    width:38px;height:38px;border-radius:50%;
+    display:grid;place-items:center;
+    background:var(--surface);
+    border:2.5px solid var(--outline);
+    box-shadow:3px 3px 0 var(--outline);
+    cursor:pointer;color:var(--ink);
+    transition:transform .14s ease,box-shadow .14s ease;
+  }
+  .sound:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--outline)}
+  .sound:focus-visible{outline:3px dashed var(--pink);outline-offset:3px}
+  .sound svg{width:19px;height:19px;display:block}
+  .sound .off{display:none}
+  .sound[aria-pressed="false"] .on{display:none}
+  .sound[aria-pressed="false"] .off{display:block}
+
+  .stage{
+    position:relative;z-index:1;
+    width:100%;max-width:440px;
+    display:flex;flex-direction:column;align-items:center;
+    gap:clamp(6px,1.8vmin,16px);
+    text-align:center;
+  }
+  .eyebrow{margin:0;font-size:clamp(.72rem,2.5vmin,.86rem);letter-spacing:.14em;color:var(--ink-2)}
+  h1{
+    margin:0;
+    font-family:"ZCOOL KuaiLe","Noto Sans SC",cursive;
+    font-weight:400;
+    font-size:clamp(1.42rem,6vmin,2.2rem);
+    line-height:1.3;
+    letter-spacing:.03em;
+    color:var(--pink);
+    text-shadow:2px 2px 0 var(--outline);
+    transition:opacity .25s ease;
+  }
+
+  .scene{
+    position:relative;
+    width:min(80vmin,340px);
+    height:min(58vmin,256px);
+    display:grid;
+    place-items:center;
+  }
+  .layer{position:absolute;inset:0;display:grid;place-items:center}
+
+  /* ---------- 问题关卡 ---------- */
+  .ask-in{display:flex;flex-direction:column;align-items:center;gap:clamp(10px,3vmin,20px);width:100%}
+  .patient{width:min(34vmin,148px);height:auto;display:block;animation:doze 3.6s ease-in-out infinite;transform-origin:50% 90%}
+  @keyframes doze{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-5px) rotate(1deg)}}
+  .shiver{animation:shiver .45s ease-in-out}
+  @keyframes shiver{
+    0%,100%{transform:translateX(0) rotate(0)}
+    25%{transform:translateX(-7px) rotate(-3deg)}
+    60%{transform:translateX(6px) rotate(3deg)}
+  }
+  .btns{display:flex;gap:28px;align-items:center;justify-content:center}
+  .pill{
+    font-family:"ZCOOL KuaiLe","Noto Sans SC",cursive;
+    font-size:clamp(.95rem,3.4vmin,1.12rem);
+    letter-spacing:.08em;
+    color:var(--outline);
+    border:3px solid var(--outline);
+    border-radius:99px;
+    padding:8px 22px;
+    cursor:pointer;
+    box-shadow:4px 4px 0 var(--outline);
+    transition:transform .34s cubic-bezier(.24,1.5,.4,1),box-shadow .14s ease,opacity .3s ease;
+    white-space:nowrap;
+  }
+  .yes{background:var(--butter)}
+  .no{background:var(--surface)}
+  .pill:active{box-shadow:1px 1px 0 var(--outline)}
+  .pill:focus-visible{outline:3px dashed var(--pink);outline-offset:4px}
+  .no.gone{opacity:0;pointer-events:none}
+
+  /* ---------- 礼物盒 ---------- */
+  .gift{
+    background:none;border:0;padding:0;margin:0;
+    cursor:pointer;color:inherit;
+    touch-action:none;
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+    display:grid;place-items:center;
+  }
+  .gift:focus-visible{outline:3px dashed var(--pink);outline-offset:10px;border-radius:24px}
+  .float{display:block;animation:float 3.4s ease-in-out infinite;transform-origin:50% 90%}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-9px) rotate(1.5deg)}}
+  .charging .float{animation:none}
+  .scaler{display:block;transform-origin:50% 84%;will-change:transform}
+  .gift svg{display:block;width:min(42vmin,180px);height:auto;overflow:visible}
+
+  #lidLift{transform:translateY(calc(var(--p,0) * -13px))}
+  #lid{transform-box:fill-box;transform-origin:50% 100%;transition:transform .36s cubic-bezier(.2,1.7,.5,1)}
+  .pop #lid{transform:translateY(-74px) rotate(-24deg)}
+  #leak{opacity:calc(var(--p,0) * var(--p,0))}
+  #halo{opacity:calc(var(--p,0) * .55)}
+
+  .eyes-open,.eyes-squint,.mouth-o{transition:opacity .12s linear}
+  .eyes-squint,.mouth-o{opacity:0}
+  .charging .eyes-open,.blink .eyes-open{opacity:0}
+  .charging .eyes-squint,.blink .eyes-squint{opacity:1}
+  .charging .mouth-o{opacity:1}
+  .charging .mouth-s{opacity:0}
+  .springback .scaler{transition:transform .5s cubic-bezier(.3,1.7,.5,1)}
+  .nope{animation:shiver .5s ease-in-out}
+
+  /* ---------- 愿望卡 ---------- */
+  .wish{width:100%;display:grid;place-items:center}
+  .wish-card{
+    position:relative;width:100%;
+    background:var(--surface);
+    border:3.5px solid var(--outline);
+    border-radius:26px;
+    box-shadow:var(--shadow);
+    padding:clamp(26px,5.4vmin,36px) clamp(18px,4.5vmin,28px) clamp(16px,3.6vmin,24px);
+  }
+  .wish-card p{
+    margin:0;
+    font-family:"ZCOOL KuaiLe","Noto Sans SC",cursive;
+    font-weight:400;
+    font-size:clamp(1.08rem,4.4vmin,1.46rem);
+    line-height:1.85;letter-spacing:.02em;color:var(--ink);text-wrap:balance;
+  }
+  .wish-no{display:block;margin-top:10px;font-family:"Baloo 2","Noto Sans SC",cursive;font-size:.78rem;letter-spacing:.12em;color:var(--ink-2)}
+  .badge{position:absolute;top:-24px;left:50%;transform:translateX(-50%);width:50px;height:50px}
+  .badge .m{display:none}
+  .badge[data-m="0"] .m0,.badge[data-m="1"] .m1,
+  .badge[data-m="2"] .m2,.badge[data-m="3"] .m3{display:block}
+  .bloom{animation:bloom .58s cubic-bezier(.24,1.5,.4,1)}
+  @keyframes bloom{
+    0%{opacity:0;transform:scale(.3) rotate(-10deg)}
+    55%{opacity:1;transform:scale(1.06) rotate(3deg)}
+    100%{opacity:1;transform:scale(1) rotate(0deg)}
+  }
+  .wish-card.finale{border-color:var(--butter);box-shadow:6px 6px 0 var(--butter)}
+
+  /* ---------- 底部 ---------- */
+  .control{min-height:clamp(40px,8.5vmin,50px);display:grid;place-items:center;width:100%}
+  .hint{margin:0;font-size:clamp(.8rem,2.8vmin,.94rem);color:var(--ink-2);line-height:1.6}
+  .hint b{color:var(--pink);font-weight:700}
+  .again{
+    font-family:"ZCOOL KuaiLe","Noto Sans SC",cursive;
+    font-size:clamp(.94rem,3.3vmin,1.08rem);
+    letter-spacing:.06em;color:var(--outline);
+    background:var(--butter);
+    border:3px solid var(--outline);
+    border-radius:99px;padding:9px 26px;cursor:pointer;
+    box-shadow:4px 4px 0 var(--outline);
+    transition:transform .14s ease,box-shadow .14s ease;
+  }
+  .again:hover{transform:translate(1px,1px);box-shadow:3px 3px 0 var(--outline)}
+  .again:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--outline)}
+  .again:focus-visible{outline:3px dashed var(--pink);outline-offset:4px}
+
+  .collect{display:flex;flex-direction:column;align-items:center;gap:7px;width:100%;transition:opacity .3s ease}
+  .slots{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(6px,1.6vmin,10px);max-width:340px}
+  .slot{
+    width:clamp(18px,4.2vmin,25px);height:clamp(18px,4.2vmin,25px);
+    padding:0;border:0;background:none;border-radius:50%;
+    display:grid;place-items:center;color:var(--slot);cursor:default;
+  }
+  .slot svg{width:100%;height:100%;display:block}
+  .slot.has{color:var(--butter);cursor:pointer;animation:stamp .45s cubic-bezier(.24,1.6,.4,1)}
+  .slot.has:hover{transform:scale(1.18) rotate(-8deg)}
+  .slot.now{color:var(--pink)}
+  .slot:focus-visible{outline:2px dashed var(--pink);outline-offset:2px;border-radius:4px}
+  @keyframes stamp{0%{transform:scale(0) rotate(-40deg)}60%{transform:scale(1.35) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
+  .tally{margin:0;font-size:clamp(.72rem,2.5vmin,.83rem);color:var(--ink-2)}
+  .tally b{font-family:"Baloo 2","Noto Sans SC",cursive;font-size:1.15em;color:var(--pink);font-variant-numeric:tabular-nums}
+
+  @media (max-height:600px){
+    .eyebrow{display:none}
+    .scene{height:min(50vmin,200px)}
+  }
+  @media (max-height:470px){
+    h1{font-size:clamp(1.1rem,4.4vmin,1.5rem)}
+    .tally{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .float,.twinkle,.doze,.patient,.nope,.shiver,.slot.has{animation:none}
+    .bloom{animation-duration:.01ms}
+  }
+</style>
+
+<div class="sky" aria-hidden="true">
+  <span class="blob b1"></span>
+  <span class="blob b2"></span>
+  <span class="blob b3"></span>
+  <span class="twinkle t1">✦</span>
+  <span class="twinkle t2">✧</span>
+  <span class="twinkle t3">✦</span>
+  <span class="twinkle t4">✧</span>
+</div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<button class="sound" id="sound" type="button" aria-pressed="true" aria-label="音乐开关">
+  <svg class="on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M15.5 9.2c1.2 1.6 1.2 4 0 5.6M18.4 6.6c2.4 2.9 2.4 7.9 0 10.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+  <svg class="off" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M16 9.5l5 5M21 9.5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+
+<main class="stage">
+  <p class="eyebrow" id="eyebrow">听说你不舒服</p>
+  <h1 id="headline">是不是浑身没力？</h1>
+
+  <div class="scene" id="scene">
+
+    <div class="layer" id="askLayer">
+      <div class="ask-in">
+        <svg class="patient" id="patient" viewBox="0 0 170 130" role="img" aria-label="一个躺在被窝里发烧的小家伙">
+          <ellipse cx="85" cy="122" rx="66" ry="7" fill="var(--outline)" opacity=".13"/>
+          <rect x="14" y="74" width="142" height="44" rx="20" fill="var(--pink)" stroke="var(--outline)" stroke-width="5"/>
+          <path d="M20 84c10 6 22 6 32 0s22-6 32 0 22 6 32 0" stroke="var(--outline)" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".55"/>
+          <circle cx="85" cy="52" r="34" fill="var(--surface)" stroke="var(--outline)" stroke-width="5"/>
+          <rect x="66" y="24" width="38" height="14" rx="6" fill="var(--lid)" stroke="var(--outline)" stroke-width="4"/>
+          <ellipse cx="64" cy="62" rx="9" ry="6" fill="var(--blush)" opacity=".8"/>
+          <ellipse cx="106" cy="62" rx="9" ry="6" fill="var(--blush)" opacity=".8"/>
+          <path d="M67 54c3 5 11 5 14 0" stroke="var(--outline)" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+          <path d="M89 54c3 5 11 5 14 0" stroke="var(--outline)" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+          <path d="M77 70c3-3.5 5 3.5 8 0s5 3.5 8 0" stroke="var(--outline)" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <path d="M126 38c4 6 6 9 6 12a6 6 0 01-12 0c0-3 2-6 6-12z" fill="var(--lid)" stroke="var(--outline)" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M40 40c-1-5 3-7 2-11M30 50c-1-4 2-6 1-9" stroke="var(--outline)" stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".6"/>
+        </svg>
+        <div class="btns">
+          <button class="pill yes" id="yes" type="button">是…</button>
+          <button class="pill no" id="no" type="button">不是</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer" id="giftLayer" hidden>
+      <button class="gift" id="gift" type="button" aria-describedby="hint">
+        <span class="float">
+          <span class="scaler" id="scaler">
+            <svg viewBox="0 0 200 210" role="img" aria-label="一个会笑的礼物盒">
+              <defs>
+                <filter id="soft" x="-60%" y="-60%" width="220%" height="220%">
+                  <feGaussianBlur stdDeviation="5"/>
+                </filter>
+              </defs>
+              <ellipse id="halo" cx="100" cy="92" rx="76" ry="46" fill="var(--butter)" filter="url(#soft)"/>
+              <ellipse cx="100" cy="196" rx="60" ry="8" fill="var(--outline)" opacity=".14"/>
+
+              <g id="body">
+                <rect x="34" y="92" width="132" height="94" rx="18" fill="var(--pink)" stroke="var(--outline)" stroke-width="5"/>
+                <circle cx="56" cy="112" r="3" fill="var(--outline)" opacity=".3"/>
+                <circle cx="146" cy="172" r="3" fill="var(--outline)" opacity=".3"/>
+                <path d="M150 106l2.6 5.6 5.6 2.6-5.6 2.6-2.6 5.6-2.6-5.6-5.6-2.6 5.6-2.6z" fill="var(--butter)" stroke="var(--outline)" stroke-width="1.6" stroke-linejoin="round"/>
+                <ellipse cx="60" cy="142" rx="10" ry="6.5" fill="var(--blush)" opacity=".75"/>
+                <ellipse cx="140" cy="142" rx="10" ry="6.5" fill="var(--blush)" opacity=".75"/>
+                <g class="eyes-open">
+                  <circle cx="80" cy="132" r="6" fill="var(--outline)"/>
+                  <circle cx="120" cy="132" r="6" fill="var(--outline)"/>
+                  <circle cx="82" cy="130" r="2" fill="var(--surface)"/>
+                  <circle cx="122" cy="130" r="2" fill="var(--surface)"/>
+                </g>
+                <g class="eyes-squint">
+                  <path d="M72 134c3-7 13-7 16 0" stroke="var(--outline)" stroke-width="5" stroke-linecap="round" fill="none"/>
+                  <path d="M112 134c3-7 13-7 16 0" stroke="var(--outline)" stroke-width="5" stroke-linecap="round" fill="none"/>
+                </g>
+                <path class="mouth-s" d="M90 150c4 6 16 6 20 0" stroke="var(--outline)" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                <ellipse class="mouth-o" cx="100" cy="153" rx="7" ry="8.5" fill="var(--outline)"/>
+              </g>
+
+              <g id="leak">
+                <path d="M100 88L58 34h12l30 50z" fill="var(--butter)" opacity=".55"/>
+                <path d="M100 88L100 26l8 0-2 62z" fill="var(--butter)" opacity=".55"/>
+                <path d="M100 88l42-54h-12l-30 50z" fill="var(--butter)" opacity=".55"/>
+                <ellipse cx="100" cy="90" rx="66" ry="13" fill="var(--butter)"/>
+              </g>
+
+              <g id="lidLift">
+                <g id="lid">
+                  <rect x="24" y="62" width="152" height="36" rx="14" fill="var(--lid)" stroke="var(--outline)" stroke-width="5"/>
+                  <rect x="88" y="62" width="24" height="36" fill="var(--butter)" stroke="var(--outline)" stroke-width="4"/>
+                  <path d="M100 62C78 60 60 48 64 34c3-11 22-6 36 28z" fill="var(--butter)" stroke="var(--outline)" stroke-width="4.5" stroke-linejoin="round"/>
+                  <path d="M100 62c22-2 40-14 36-28-3-11-22-6-36 28z" fill="var(--butter)" stroke="var(--outline)" stroke-width="4.5" stroke-linejoin="round"/>
+                  <circle cx="100" cy="58" r="10" fill="var(--butter)" stroke="var(--outline)" stroke-width="4.5"/>
+                </g>
+              </g>
+            </svg>
+          </span>
+        </span>
+      </button>
+    </div>
+
+    <div class="layer wish" id="wishLayer" hidden>
+      <div class="wish-card" id="wishCard">
+        <svg class="badge" id="badge" data-m="0" viewBox="0 0 52 52" aria-hidden="true">
+          <g class="m m0">
+            <path d="M26 4l6 13.2 14.4 1.9-10.4 10.2 2.6 14.5L26 36.9 13.4 43.8 16 29.3 5.6 19.1 20 17.2z" fill="var(--butter)" stroke="var(--outline)" stroke-width="3.2" stroke-linejoin="round"/>
+            <circle cx="21" cy="23" r="2.1" fill="var(--outline)"/><circle cx="31" cy="23" r="2.1" fill="var(--outline)"/>
+            <path d="M22.4 28c2 2.6 5.2 2.6 7.2 0" stroke="var(--outline)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+          </g>
+          <g class="m m1">
+            <path d="M14 38c-5 0-9-3.6-9-8s4-8 9-8c.4-6 5.4-10 11-10s10.4 4.4 11 10.4c4.4.5 7 3.6 7 7.6 0 4.4-4 8-9 8z" fill="var(--surface)" stroke="var(--outline)" stroke-width="3.2" stroke-linejoin="round"/>
+            <circle cx="21" cy="27" r="2.1" fill="var(--outline)"/><circle cx="32" cy="27" r="2.1" fill="var(--outline)"/>
+            <path d="M23 32c2 2.4 5.4 2.4 7.4 0" stroke="var(--outline)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+          </g>
+          <g class="m m2">
+            <path d="M26 45S6 33.5 6 21.5C6 14.6 11.4 10 17.2 10c3.8 0 7 2 8.8 5 1.8-3 5-5 8.8-5C40.6 10 46 14.6 46 21.5 46 33.5 26 45 26 45z" fill="var(--pink)" stroke="var(--outline)" stroke-width="3.2" stroke-linejoin="round"/>
+            <circle cx="20" cy="24" r="2.1" fill="var(--outline)"/><circle cx="32" cy="24" r="2.1" fill="var(--outline)"/>
+            <path d="M22 29c2.2 2.6 5.8 2.6 8 0" stroke="var(--outline)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+          </g>
+          <g class="m m3">
+            <path d="M12 20h26v13c0 6-5 10-11 10h-4c-6 0-11-4-11-10z" fill="var(--mint)" stroke="var(--outline)" stroke-width="3.2" stroke-linejoin="round"/>
+            <path d="M38 24h3.5c3 0 5.5 2.4 5.5 5.4s-2.5 5.6-5.5 5.6H38" fill="none" stroke="var(--outline)" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M20 14c-2-2.4 2-4 0-7M30 14c-2-2.4 2-4 0-7" stroke="var(--outline)" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+            <circle cx="20" cy="30" r="2.1" fill="var(--outline)"/><circle cx="30" cy="30" r="2.1" fill="var(--outline)"/>
+            <path d="M21.5 35c2 2.4 5.2 2.4 7.2 0" stroke="var(--outline)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+          </g>
+        </svg>
+        <p id="wishText" aria-live="polite">按住礼物盒，看看里面装了什么。</p>
+        <span class="wish-no" id="wishNo"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="control">
+    <p class="hint" id="hint">诚实一点哦，这个问题只有两个答案</p>
+    <button class="again" id="again" type="button" hidden>再拆一个 ✦</button>
+  </div>
+
+  <div class="collect" id="collect" style="opacity:0;pointer-events:none">
+    <div class="slots" id="slots" role="group" aria-label="愿望收集卡"></div>
+    <p class="tally">愿望收集进度 <b id="tally">0</b> / 8</p>
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var WISHES = [
+    "今天不用逞强，躺平就是正事。",
+    "愿你一觉睡到天亮，醒来满血复活。",
+    "多喝热水虽然很老土，但真的有用啦。",
+    "药要记得吃，饭也吃一点点好不好。",
+    "被子要盖好，脚不可以露在外面哦。",
+    "烧会退的，咳嗽会停的，你会好起来的。",
+    "等你好起来，要去吃一顿很好吃的。",
+    "快点好起来，世界还等着你去玩呢。"
+  ];
+  var FINALE = "八个愿望都被你拆完啦，它们凑在一起只说了一句：快点好起来呀。";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var headline = $("headline"), eyebrow = $("eyebrow");
+  var askLayer = $("askLayer"), giftLayer = $("giftLayer"), wishLayer = $("wishLayer");
+  var patient = $("patient"), yes = $("yes"), no = $("no");
+  var gift = $("gift"), scaler = $("scaler"), scene = $("scene");
+  var wishCard = $("wishCard"), wishText = $("wishText"), wishNo = $("wishNo"), badge = $("badge");
+  var hint = $("hint"), again = $("again"), tallyEl = $("tally"), slotsEl = $("slots"), collect = $("collect");
+  var soundBtn = $("sound");
+
+  var HOLD = reduce ? 300 : 1600;
+  var HINT_HOLD = '按住礼物盒<b>不要松手</b>，它会越变越大';
+
+  (function(){
+    var h = new Date().getHours(), t;
+    if(h < 5)       t = "夜深了 · 还没睡吗";
+    else if(h < 11) t = "早安 · 今天有好一点吗";
+    else if(h < 14) t = "中午了 · 记得吃点东西";
+    else if(h < 18) t = "下午好 · 有没有多喝水";
+    else if(h < 23) t = "晚上好 · 早点休息呀";
+    else            t = "这么晚了 · 别刷手机啦";
+    eyebrow.textContent = t;
+  })();
+
+  function get(k, fb){ try{ var v = localStorage.getItem(k); return v === null ? fb : JSON.parse(v); }catch(e){ return fb; } }
+  function set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+  var found = get("wishbox8.found", []);
+  if(!Array.isArray(found)) found = [];
+  found = found.filter(function(i){ return i >= 0 && i < WISHES.length; });
+  var soundOn = get("wishbox.sound", true) !== false;
+  soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false");
+
+  /* ================= 音乐 ================= */
+  var A = null, master = null, wet = null;
+  function ac(){
+    if(!soundOn) return null;
+    try{
+      if(!A){
+        A = new (window.AudioContext || window.webkitAudioContext)();
+        master = A.createGain(); master.gain.value = 0.85; master.connect(A.destination);
+        var dly = A.createDelay(1.0); dly.delayTime.value = 0.27;
+        var fb = A.createGain(); fb.gain.value = 0.26;
+        wet = A.createGain(); wet.gain.value = 0.3;
+        master.connect(dly); dly.connect(fb); fb.connect(dly); dly.connect(wet); wet.connect(A.destination);
+      }
+      if(A.state === "suspended") A.resume();
+      return A;
+    }catch(e){ return null; }
+  }
+  // 音乐盒音色：基音 sine + 泛音 triangle，快起音、长衰减
+  function box(freq, at, dur, vol){
+    var a = ac(); if(!a) return;
+    var t = a.currentTime + at;
+    var g = a.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    g.connect(master);
+    var o1 = a.createOscillator(); o1.type = "sine"; o1.frequency.setValueAtTime(freq, t);
+    var o2 = a.createOscillator(); o2.type = "triangle"; o2.frequency.setValueAtTime(freq * 2.004, t);
+    var h = a.createGain(); h.gain.value = 0.22; o2.connect(h); h.connect(g);
+    var o3 = a.createOscillator(); o3.type = "sine"; o3.frequency.setValueAtTime(freq * 3.01, t);
+    var h3 = a.createGain(); h3.gain.value = 0.08; o3.connect(h3); h3.connect(g);
+    o1.connect(g);
+    o1.start(t); o2.start(t); o3.start(t);
+    o1.stop(t + dur + 0.1); o2.stop(t + dur + 0.1); o3.stop(t + dur + 0.1);
+  }
+  function pad(freq, at, dur, vol){
+    var a = ac(); if(!a) return;
+    var t = a.currentTime + at;
+    var o = a.createOscillator(); o.type = "sine"; o.frequency.setValueAtTime(freq, t);
+    var g = a.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.25);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + dur + 0.1);
+  }
+
+  var N = {C3:130.81,D3:146.83,E3:164.81,F3:174.61,G3:196,A3:220,
+           C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392,A4:440,
+           C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880,C6:1046.5,D6:1174.7,E6:1318.5,G6:1568};
+  var BEAT = 0.46;
+  // I - vi - IV - V，摇篮曲式的八度music box旋律
+  var MEL = [
+    [N.C5,0,1.4],[N.E5,1,1.4],[N.G5,2,1.9],[N.E5,3.5,0.6],
+    [N.A5,4,2.2],[N.G5,6,1.9],
+    [N.F5,8,1.4],[N.A5,9,1.4],[N.C6,10,1.9],[N.A5,11.5,0.6],
+    [N.G5,12,2.2],[N.E5,14,2.4]
+  ];
+  var BASS = [[N.C3,0,3.6],[N.A3,4,3.6],[N.F3,8,3.6],[N.G3,12,3.6]];
+  var musicTimer = null, musicOn = false;
+  function playLoop(){
+    if(!musicOn || !ac()) return;
+    var i;
+    for(i = 0; i < MEL.length; i++) box(MEL[i][0], MEL[i][1] * BEAT, MEL[i][2] * BEAT, 0.075);
+    for(i = 0; i < BASS.length; i++) pad(BASS[i][0], BASS[i][1] * BEAT, BASS[i][2] * BEAT, 0.035);
+    musicTimer = setTimeout(playLoop, 16 * BEAT * 1000 - 60);
+  }
+  function musicStart(){
+    if(musicOn || !soundOn) return;
+    if(!ac()) return;
+    musicOn = true;
+    playLoop();
+  }
+  function musicStop(){
+    musicOn = false;
+    clearTimeout(musicTimer);
+    if(master && A){
+      try{
+        master.gain.cancelScheduledValues(A.currentTime);
+        master.gain.setValueAtTime(master.gain.value, A.currentTime);
+        master.gain.exponentialRampToValueAtTime(0.0001, A.currentTime + 0.4);
+      }catch(e){}
+    }
+  }
+  soundBtn.addEventListener("click", function(){
+    soundOn = !soundOn;
+    soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false");
+    set("wishbox.sound", soundOn);
+    if(soundOn){
+      if(master && A){ try{ master.gain.cancelScheduledValues(A.currentTime); master.gain.setValueAtTime(0.85, A.currentTime); }catch(e){} }
+      box(N.C6, 0, 0.6, 0.08);
+      if(started) musicStart();
+    }else{
+      musicStop();
+    }
+  });
+  function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+
+  /* ================= 撒花 ================= */
+  var fx = $("fx"), ctx = fx.getContext ? fx.getContext("2d") : null;
+  var bits = [], fxRaf = null, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function sizeFx(){
+    if(!ctx) return;
+    fx.width = window.innerWidth * dpr; fx.height = window.innerHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  sizeFx();
+  var rzT; window.addEventListener("resize", function(){ clearTimeout(rzT); rzT = setTimeout(sizeFx, 160); });
+  function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || "#FF7EA5"; }
+  function burst(n, power){
+    if(!ctx || reduce) return;
+    var r = scene.getBoundingClientRect();
+    var ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+    var colors = [cssVar("--pink"), cssVar("--mint"), cssVar("--butter"), cssVar("--blush"), cssVar("--lid")];
+    var glyphs = ["♥", "★", "✦", "✿", "♡"];
+    for(var i = 0; i < n; i++){
+      var a = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.35;
+      var sp = (5 + Math.random() * 9) * (power || 1);
+      bits.push({
+        x: ox, y: oy, vx: Math.cos(a) * sp + (Math.random() - 0.5) * 2, vy: Math.sin(a) * sp,
+        g: 0.30 + Math.random() * 0.14, rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.34,
+        s: 7 + Math.random() * 9, c: colors[(Math.random() * colors.length) | 0],
+        glyph: Math.random() < 0.42 ? glyphs[(Math.random() * glyphs.length) | 0] : null,
+        round: Math.random() < 0.4, life: 1
+      });
+    }
+    if(!fxRaf) fxRaf = requestAnimationFrame(fxTick);
+  }
+  function fxTick(){
+    ctx.clearRect(0, 0, fx.width, fx.height);
+    for(var i = bits.length - 1; i >= 0; i--){
+      var p = bits[i];
+      p.vy += p.g; p.vx *= 0.992; p.vy *= 0.995;
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 0.0085;
+      if(p.life <= 0 || p.y > window.innerHeight + 60){ bits.splice(i, 1); continue; }
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.6));
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.c;
+      if(p.glyph){
+        ctx.font = (p.s * 1.9) + "px system-ui, sans-serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(p.glyph, 0, 0);
+      }else if(p.round){ ctx.beginPath(); ctx.arc(0, 0, p.s * 0.45, 0, 6.29); ctx.fill(); }
+      else{ ctx.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * 0.66); }
+      ctx.restore();
+    }
+    if(bits.length) fxRaf = requestAnimationFrame(fxTick);
+    else { fxRaf = null; ctx.clearRect(0, 0, fx.width, fx.height); }
+  }
+
+  /* ================= 收集卡 ================= */
+  var STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.6.9-4.8 4.7 1.2 6.7L12 17.7 6.1 21l1.2-6.7-4.8-4.7 6.6-.9z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  var slots = [];
+  for(var si = 0; si < WISHES.length; si++){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "slot"; b.innerHTML = STAR; b.dataset.i = si; b.disabled = true;
+    slotsEl.appendChild(b); slots.push(b);
+  }
+  slotsEl.addEventListener("click", function(e){
+    var t = e.target.closest ? e.target.closest(".slot") : null;
+    if(!t || t.disabled) return;
+    box(N.G5, 0, 0.5, 0.07);
+    showWish(parseInt(t.dataset.i, 10), false);
+  });
+  function paintSlots(active){
+    for(var i = 0; i < slots.length; i++){
+      var has = found.indexOf(i) !== -1;
+      slots[i].classList.toggle("has", has);
+      slots[i].classList.toggle("now", i === active);
+      slots[i].disabled = !has;
+      slots[i].setAttribute("aria-label", "第 " + (i + 1) + " 个愿望：" + (has ? WISHES[i] : "还没拆开"));
+    }
+    tallyEl.textContent = found.length;
+  }
+  paintSlots(-1);
+
+  /* ================= 第一关：是不是浑身没力 ================= */
+  var started = false, noCount = 0;
+  var NO_LINES = [
+    "真的吗？我才不信～",
+    "嘴硬。再问一次：",
+    "这个「不是」好像有点小了…",
+    "它快撑不住咯～",
+    "「不是」跑掉啦，只剩下「是」了"
+  ];
+  no.addEventListener("click", function(){
+    noCount++;
+    yes.style.transform = "scale(" + (1 + noCount * 0.36) + ")";
+    var s = Math.max(0, 1 - noCount * 0.23);
+    no.style.transform = "scale(" + s + ")";
+    hint.textContent = NO_LINES[Math.min(noCount, NO_LINES.length) - 1];
+    patient.classList.remove("shiver"); void patient.offsetWidth; patient.classList.add("shiver");
+    buzz(10);
+    box(N.E5, 0, 0.3, 0.06); box(N.C5, 0.09, 0.4, 0.06);
+    if(noCount >= 5){
+      no.classList.add("gone");
+      no.disabled = true;
+      yes.focus({ preventScroll:true });
+    }
+  });
+  yes.addEventListener("click", function(){
+    started = true;
+    musicStart();
+    buzz([12, 30, 18]);
+    box(N.G5, 0, 0.5, 0.09); box(N.C6, 0.1, 0.9, 0.09); box(N.E6, 0.2, 1.1, 0.06);
+    burst(16, 0.7);
+    headline.style.opacity = "0";
+    setTimeout(function(){
+      askLayer.hidden = true;
+      giftLayer.hidden = false;
+      headline.textContent = "那就拆一个愿望给你";
+      headline.style.opacity = "1";
+      hint.innerHTML = HINT_HOLD;
+      collect.style.opacity = "1";
+      collect.style.pointerEvents = "auto";
+      scheduleBlink();
+      gift.focus({ preventScroll:true });
+    }, 260);
+  });
+
+  /* ================= 眨眼 ================= */
+  var blinkT = null;
+  function scheduleBlink(){
+    clearTimeout(blinkT);
+    blinkT = setTimeout(function(){
+      if(started && !holding && !opened && !reduce){
+        gift.classList.add("blink");
+        setTimeout(function(){ gift.classList.remove("blink"); }, 150);
+      }
+      scheduleBlink();
+    }, 2600 + Math.random() * 4200);
+  }
+
+  /* ================= 抽愿望 ================= */
+  var deck = [];
+  function reshuffle(){
+    deck = [];
+    for(var i = 0; i < WISHES.length; i++) if(found.indexOf(i) === -1) deck.push(i);
+    if(!deck.length) for(var j = 0; j < WISHES.length; j++) deck.push(j);
+    for(var k = deck.length - 1; k > 0; k--){
+      var m = Math.floor(Math.random() * (k + 1));
+      var t = deck[k]; deck[k] = deck[m]; deck[m] = t;
+    }
+  }
+  reshuffle();
+
+  function showWish(idx, isNew){
+    var wasComplete = found.length === WISHES.length;
+    if(found.indexOf(idx) === -1){ found.push(idx); set("wishbox8.found", found); }
+    var complete = found.length === WISHES.length;
+    var finale = isNew && complete && !wasComplete;
+
+    giftLayer.hidden = true;
+    wishText.textContent = finale ? FINALE : WISHES[idx];
+    wishNo.textContent = "NO. " + (idx + 1) + " / " + WISHES.length;
+    badge.setAttribute("data-m", String(idx % 4));
+    wishCard.classList.toggle("finale", !!finale);
+    wishLayer.hidden = false;
+    wishCard.classList.remove("bloom"); void wishCard.offsetWidth; wishCard.classList.add("bloom");
+    hint.hidden = true; again.hidden = false;
+    headline.textContent = finale ? "全部集齐啦！" : "这是给你的";
+    opened = true;
+    paintSlots(idx);
+  }
+
+  /* ================= 长按 → 变大 → 打开 ================= */
+  var holding = false, raf = null, startAt = 0, opened = false, buzzed = false, step = 0;
+  var RISE = [N.C5, N.D5, N.E5, N.G5, N.A5, N.C6, N.D6, N.E6, N.G6, N.C6 * 2];
+
+  function setScale(s, wob){
+    var sx = s * (1 + Math.sin(wob * 2.4) * 0.035);
+    var sy = s * (1 - Math.sin(wob * 2.4) * 0.035);
+    scaler.style.transform = "scale(" + sx + "," + sy + ") rotate(" + (Math.sin(wob) * 1.2) + "deg)";
+  }
+  function frame(now){
+    if(!holding) return;
+    var p = Math.min((now - startAt) / HOLD, 1);
+    var eased = p * p * (3 - 2 * p);
+    gift.style.setProperty("--p", p.toFixed(3));
+    setScale(1 + eased * 0.55, now / 42 * (0.4 + p * 1.6));
+    while(step < RISE.length && p > step / RISE.length){
+      box(RISE[step], 0, 0.5, 0.055 + step * 0.003);
+      step++;
+    }
+    if(p > 0.55 && !buzzed){ buzzed = true; buzz(12); }
+    if(p >= 1){ open(); return; }
+    raf = requestAnimationFrame(frame);
+  }
+  function startHold(e){
+    if(holding || opened || !started) return;
+    if(e && e.cancelable) e.preventDefault();
+    holding = true; buzzed = false; step = 0;
+    gift.classList.add("charging");
+    gift.classList.remove("springback", "nope", "blink");
+    scaler.style.transition = "none";
+    startAt = performance.now();
+    buzz(8);
+    raf = requestAnimationFrame(frame);
+  }
+  function endHold(){
+    if(!holding) return;
+    var held = performance.now() - startAt;
+    holding = false;
+    cancelAnimationFrame(raf);
+    gift.classList.remove("charging");
+    gift.classList.add("springback");
+    gift.style.setProperty("--p", "0");
+    scaler.style.transition = "";
+    setScale(1, 0);
+    box(N.A4, 0, 0.3, 0.05);
+    if(held < 380){
+      gift.classList.add("nope");
+      setTimeout(function(){ gift.classList.remove("nope"); }, 520);
+      hint.innerHTML = '要<b>按住不放</b>才会打开哦～';
+    }else{
+      hint.innerHTML = '差一点点！再<b>多按一下下</b>～';
+    }
+    clearTimeout(endHold.t);
+    endHold.t = setTimeout(function(){ if(!opened) hint.innerHTML = HINT_HOLD; }, 2000);
+  }
+  function open(){
+    holding = false;
+    cancelAnimationFrame(raf);
+    gift.classList.remove("charging");
+    gift.classList.add("pop");
+    setScale(1.62, 0);
+    scaler.style.transition = "transform .3s ease-out, opacity .3s ease-out";
+    scaler.style.opacity = "0";
+
+    var idx = deck.pop();
+    if(idx === undefined){ reshuffle(); idx = deck.pop(); }
+    var willComplete = found.indexOf(idx) === -1 && found.length === WISHES.length - 1;
+
+    burst(willComplete ? 70 : 44, willComplete ? 1.25 : 1);
+    buzz(willComplete ? [22, 50, 22, 50, 60] : [18, 40, 50]);
+    var run = [N.C6, N.E6, N.G6, N.C6 * 2];
+    for(var i = 0; i < run.length; i++) box(run[i], i * 0.07, 0.9, 0.08);
+    box(N.C5, 0.02, 1.8, 0.05); box(N.E5, 0.02, 1.8, 0.04); box(N.G5, 0.02, 1.8, 0.04);
+    if(willComplete){ box(N.C6, 0.55, 2.2, 0.07); box(N.E6, 0.7, 2.2, 0.05); box(N.G6, 0.85, 2.4, 0.05); }
+
+    setTimeout(function(){
+      showWish(idx, true);
+      again.focus({ preventScroll:true });
+      if(!deck.length) reshuffle();
+    }, reduce ? 60 : 320);
+  }
+  function reset(){
+    wishLayer.hidden = true;
+    again.hidden = true;
+    hint.hidden = false;
+    hint.innerHTML = '再按住一次，<b>不要松手</b>～';
+    headline.textContent = "再拆一个吧";
+    giftLayer.hidden = false;
+    gift.classList.remove("pop", "springback", "nope");
+    gift.style.setProperty("--p", "0");
+    scaler.style.transition = "none";
+    scaler.style.opacity = "1";
+    setScale(1, 0);
+    void scaler.offsetWidth;
+    scaler.style.transition = "";
+    opened = false;
+    paintSlots(-1);
+    gift.focus({ preventScroll:true });
+    scheduleBlink();
+  }
+
+  gift.addEventListener("pointerdown", startHold);
+  gift.addEventListener("pointerup", endHold);
+  gift.addEventListener("pointerleave", endHold);
+  gift.addEventListener("pointercancel", endHold);
+  gift.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+  gift.addEventListener("keydown", function(e){
+    if(e.repeat) return;
+    if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){ e.preventDefault(); startHold(); }
+  });
+  gift.addEventListener("keyup", function(e){
+    if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){ endHold(); }
+  });
+  again.addEventListener("click", reset);
+  document.addEventListener("pointerup", function(){ if(holding) endHold(); });
+  document.addEventListener("visibilitychange", function(){
+    if(document.hidden){ if(holding) endHold(); musicStop(); }
+    else if(started && soundOn){ if(master && A){ try{ master.gain.setValueAtTime(0.85, A.currentTime); }catch(e){} } musicStart(); }
+  });
+})();
+</script>
